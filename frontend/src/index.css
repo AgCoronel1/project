@@ -1,0 +1,32 @@
+/* stylelint-disable at-rule-no-unknown */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply min-h-screen bg-ios-bg text-white font-sans antialiased;
+}
+
+header {
+  @apply sticky top-0 z-50 backdrop-blur-2xl border-b border-white/10;
+}
+
+.drag-drop {
+  @apply rounded-3xl bg-ios-surface border-2 border-dashed border-white/20 transition-all duration-300 hover:border-ios-blue hover:bg-ios-blue/10 active:scale-95 active:opacity-70;
+}
+
+.search-input {
+  @apply rounded-full bg-ios-surface-2 focus:ring-2 ring-ios-blue outline-none;
+}
+
+.result-card {
+  @apply rounded-2xl bg-ios-surface shadow-md p-4 transition-all duration-300 hover:bg-ios-blue/10 active:scale-95 active:opacity-70;
+}
+
+.badge {
+  @apply px-2 py-1 bg-ios-blue text-white rounded-full text-xs;
+}
+
+.button-primary {
+  @apply rounded-full bg-ios-blue text-white px-4 py-2 transition-all duration-300 hover:bg-ios-blue/80 active:scale-95 active:opacity-70;
+}
