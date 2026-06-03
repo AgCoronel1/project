@@ -1,5 +1,17 @@
 export const mockResults = [
-     { title: 'Page 1', description: 'This is a mock page description.' },
-     { title: 'Page 2', description: 'This is another mock page description.' },
-     // Add more mock results as needed
-   ];
+  {
+    title: 'Executive summary',
+    description: 'Key findings, recommendations, and summary text extracted from the first pages.',
+    tags: ['Summary'],
+  },
+  {
+    title: 'Pricing details',
+    description: 'Extracted pricing tables and billing sections for quick reference.',
+    tags: ['Pricing'],
+  },
+  {
+    title: 'Implementation notes',
+    description: 'Relevant technical details and action items pulled from the document.',
+    tags: ['Notes'],
+  },
+];

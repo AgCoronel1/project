@@ -1,121 +1,181 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useState, useCallback } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { Search, Trash2, FileUp, AlertCircle } from 'lucide-react'
+import Header from './components/Header'
+import Main from './components/Main'
+import Searcher from './components/Searcher'
+import ResultCard from './components/ResultCard'
+import { mockResults } from './mockData'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [file, setFile] = useState<File | null>(null)
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<any[]>([])
+  const [error, setError] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setError('')
+    const droppedFile = acceptedFiles[0]
+    
+    if (!droppedFile) return
+    
+    if (droppedFile.type !== 'application/pdf') {
+      setError('Please upload a PDF file.')
+      return
+    }
+    
+    if (droppedFile.size > 50 * 1024 * 1024) {
+      setError('File size must be under 50 MB.')
+      return
+    }
+    
+    setFile(droppedFile)
+    setQuery('')
+    setResults([])
+  }, [])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'application/pdf': ['.pdf'] },
+    multiple: false,
+  })
+
+  const handleRemoveFile = () => {
+    setFile(null)
+    setQuery('')
+    setResults([])
+    setError('')
+  }
+
+  const handleSearch = () => {
+    if (!file) {
+      setError('Please upload a PDF first.')
+      return
+    }
+    
+    if (!query.trim()) {
+      setResults([])
+      return
+    }
+
+    setIsSearching(true)
+    // Simulate search delay
+    setTimeout(() => {
+      const filtered = mockResults.filter(
+        (result) =>
+          result.title.toLowerCase().includes(query.toLowerCase()) ||
+          result.description.toLowerCase().includes(query.toLowerCase())
+      )
+      setResults(filtered)
+      setIsSearching(false)
+    }, 500)
+  }
+
+  const handleQueryChange = (newQuery: string) => {
+    setQuery(newQuery)
+    if (!file) return
+    
+    if (!newQuery.trim()) {
+      setResults([])
+      return
+    }
+
+    // Auto-search as user types
+    const filtered = mockResults.filter(
+      (result) =>
+        result.title.toLowerCase().includes(newQuery.toLowerCase()) ||
+        result.description.toLowerCase().includes(newQuery.toLowerCase())
+    )
+    setResults(filtered)
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <Header onAddClick={() => console.log('Add clicked')} />
+      
+      <div className="content-shell">
+        {!file ? (
+          <div className="hero-card">
+            <div>
+              <div className="eyebrow">PDF Search Tool</div>
+              <h1>Find what you need in seconds</h1>
+              <p className="hero-copy">
+                Upload a PDF document and instantly search through its content. Get quick summaries and exact page references.
+              </p>
+              <div className="hero-meta">
+                <div className="status-pill">
+                  <FileUp size={16} style={{ marginRight: '0.5rem' }} />
+                  Ready to upload
+                </div>
+                <p className="status-note">Supports PDF files up to 50 MB</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
-      <div className="ticks"></div>
+        <div className={`panel-grid ${file ? 'with-file' : ''}`}>
+          <Main
+            file={file}
+            error={error}
+            onRemove={handleRemoveFile}
+            dropzoneProps={getRootProps()}
+            inputProps={getInputProps()}
+            isDragActive={isDragActive}
+          />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {file && (
+            <div className="search-panel">
+              <Searcher 
+                query={query}
+                setQuery={handleQueryChange}
+                onSearch={handleSearch}
+                isSearching={isSearching}
+              />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+              {results.length > 0 && (
+                <div>
+                  <div className="results-meta">
+                    <h2>
+                      <Search size={18} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'text-bottom' }} />
+                      Results
+                    </h2>
+                    <p>{results.length} found</p>
+                  </div>
+                  <div className="results-list">
+                    {results.map((result, idx) => (
+                      <ResultCard
+                        key={idx}
+                        title={result.title}
+                        description={result.description}
+                        tags={result.tags}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {file && query && results.length === 0 && !isSearching && (
+                <div className="empty-state">
+                  <Search size={32} className="empty-state-icon" />
+                  <h3>No results found</h3>
+                  <p>Try different keywords or check your document content.</p>
+                </div>
+              )}
+
+              {file && !query && (
+                <div className="empty-state">
+                  <AlertCircle size={32} className="empty-state-icon" />
+                  <h3>Start searching</h3>
+                  <p>Enter keywords to search within your document.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 

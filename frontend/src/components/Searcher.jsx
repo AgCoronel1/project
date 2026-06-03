@@ -1,24 +1,42 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Search } from 'lucide-react';
 
-const Searcher = () => {
-  const [query, setQuery] = useState('');
-
-  const handleInputChange = (e) => {
-    setQuery(e.target.value);
+const Searcher = ({ query, setQuery, onSearch }) => {
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      onSearch();
+    }
   };
 
   return (
-    <div className="search-container">
-      <input
-        type="text"
-        value={query}
-        onChange={handleInputChange}
-        placeholder="Search..."
-        className="search-input p-4 border-dashed border-2 border-gray-300 rounded w-full"
-      />
-      <button className="search-button px-4 py-2 bg-blue-500 text-white rounded ml-2">
+    <div className="panel search-panel-inner">
+      <label className="panel-title" htmlFor="search-input">
+        <Search size={18} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'text-bottom' }} />
         Search
-      </button>
+      </label>
+
+      <div className="search-wrapper">
+        <input
+          id="search-input"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Search keywords..."
+          className="search-input"
+          autoComplete="off"
+        />
+        <button 
+          className="button-primary" 
+          type="button"
+          onClick={onSearch}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+        >
+          <Search size={18} />
+          Search
+        </button>
+      </div>
+
+      <p className="search-hint">💡 Try: "Executive summary", "Pricing", or "Implementation"</p>
     </div>
   );
 };

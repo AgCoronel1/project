@@ -1,58 +1,51 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Upload, CheckCircle, Trash2 } from 'lucide-react';
 
-   const Main = () => {
-     const [file, setFile] = useState(null);
-     const [error, setError] = useState(null);
+const Main = ({ file, error, onRemove, dropzoneProps, inputProps, isDragActive }) => {
+  return (
+    <section className="panel upload-panel">
+      <div className="panel-header">
+        <div>
+          <p className="panel-title">Upload PDF</p>
+          <p className="panel-subtitle">Drag & drop or click to import one file.</p>
+        </div>
+      </div>
 
-     const handleDrop = (event) => {
-       event.preventDefault();
-       const droppedFiles = event.dataTransfer.files;
-       if (droppedFiles.length > 0) {
-         const file = droppedFiles[0];
-         if (file.type === 'application/pdf') {
-           setFile(file);
-         } else {
-           setError('Only PDF files are allowed');
-         }
-       }
-     };
+      <div className={`upload-area ${isDragActive ? 'drag-active' : ''}`} {...dropzoneProps}>
+        <input {...inputProps} />
+        <div>
+          <Upload size={32} style={{ marginBottom: '0.5rem', opacity: 0.7 }} />
+          <p className="upload-cta">Tap or drop a PDF here</p>
+          <p className="upload-helper">We support one document at a time.</p>
+        </div>
+      </div>
 
-     const handleFileChange = (event) => {
-       const selectedFile = event.target.files[0];
-       if (selectedFile && selectedFile.type === 'application/pdf') {
-         setFile(selectedFile);
-       } else {
-         setError('Only PDF files are allowed');
-       }
-     };
+      {file ? (
+        <div className="file-panel">
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+            <CheckCircle size={20} style={{ color: 'var(--accent)', marginTop: '0.1rem', flexShrink: 0 }} />
+            <div>
+              <p className="file-label">Selected file</p>
+              <p className="file-name">{file.name}</p>
+              <p className="file-meta">{Math.round(file.size / 1024)} KB • PDF</p>
+            </div>
+          </div>
+          <button 
+            className="button-secondary" 
+            type="button" 
+            onClick={onRemove}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}
+            title="Remove file"
+          >
+            <Trash2 size={16} />
+            Remove
+          </button>
+        </div>
+      ) : null}
 
-     return (
-       <main className="flex flex-col items-center justify-center h-full py-12">
-         {file ? (
-           <>
-             <div className="text-lg font-bold">Uploaded: {file.name}</div>
-             <button
-               onClick={() => setFile(null)}
-               className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-             >
-               Remove
-             </button>
-           </>
-         ) : (
-           <>
-             <input
-               type="file"
-               accept=".pdf"
-               onChange={handleFileChange}
-               className="p-4 border-dashed border-2 border-gray-300 rounded"
-               onDragOver={(e) => e.preventDefault()}
-               onDrop={handleDrop}
-             />
-             {error && <div className="text-red-500 mt-2">{error}</div>}
-           </>
-         )}
-       </main>
-     );
-   };
+      {error && <p className="error-text">⚠️ {error}</p>}
+    </section>
+  );
+};
 
-   export default Main;
+export default Main;
