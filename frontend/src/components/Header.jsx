@@ -5,7 +5,7 @@ const Header = ({ onAddClick }) => {
   return (
     <header className="app-header">
       <div>
-        <p className="header-label">📄 LeeManual</p>
+        <p className="header-label">📄 RTM</p>
         <p className="header-subtitle">PDF search and quick summaries</p>
       </div>
       <button 

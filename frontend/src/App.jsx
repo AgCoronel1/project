@@ -5,7 +5,6 @@ import Header from './components/Header.jsx';
 import Main from './components/Main.jsx';
 import Searcher from './components/Searcher.jsx';
 import ResultCard from './components/ResultCard.jsx';
-import { mockResults } from './mockData';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -58,12 +57,8 @@ function App() {
       return;
     }
 
-    const filtered = mockResults.filter(
-      (result) =>
-        result.title.toLowerCase().includes(query.toLowerCase()) ||
-        result.description.toLowerCase().includes(query.toLowerCase())
-    );
-    setResults(filtered);
+    // TODO: Integrate with backend API to search PDF content
+    setResults([]);
   };
 
   const handleQueryChange = (newQuery) => {
@@ -75,13 +70,8 @@ function App() {
       return;
     }
 
-    // Auto-search as user types
-    const filtered = mockResults.filter(
-      (result) =>
-        result.title.toLowerCase().includes(newQuery.toLowerCase()) ||
-        result.description.toLowerCase().includes(newQuery.toLowerCase())
-    );
-    setResults(filtered);
+    // TODO: Integrate with backend API to search PDF content
+    setResults([]);
   };
 
   return (
@@ -144,7 +134,7 @@ function App() {
                 </div>
               )}
 
-              {file && query && results.length === 0 && !isSearching && (
+              {file && query && results.length === 0 && (
                 <div className="empty-state">
                   <Search size={32} className="empty-state-icon" />
                   <h3>No results found</h3>

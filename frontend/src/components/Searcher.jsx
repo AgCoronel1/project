@@ -1,9 +1,9 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Loader } from 'lucide-react';
 
-const Searcher = ({ query, setQuery, onSearch }) => {
+const Searcher = ({ query, setQuery, onSearch, isSearching }) => {
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isSearching) {
       onSearch();
     }
   };
@@ -12,7 +12,7 @@ const Searcher = ({ query, setQuery, onSearch }) => {
     <div className="panel search-panel-inner">
       <label className="panel-title" htmlFor="search-input">
         <Search size={18} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'text-bottom' }} />
-        Search
+        Search inside your document
       </label>
 
       <div className="search-wrapper">
@@ -21,18 +21,28 @@ const Searcher = ({ query, setQuery, onSearch }) => {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Search keywords..."
+          placeholder="Type keywords, titles, or sections..."
           className="search-input"
-          autoComplete="off"
+          disabled={isSearching}
         />
         <button 
           className="button-primary" 
           type="button"
           onClick={onSearch}
+          disabled={isSearching}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
         >
-          <Search size={18} />
-          Search
+          {isSearching ? (
+            <>
+              <Loader size={18} className="spinner" />
+              Searching...
+            </>
+          ) : (
+            <>
+              <Search size={18} />
+              Search
+            </>
+          )}
         </button>
       </div>
 
