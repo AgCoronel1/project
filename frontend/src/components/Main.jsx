@@ -6,7 +6,7 @@ const Main = ({ file, error, onRemove, dropzoneProps, inputProps, isDragActive }
     <section className="panel upload-panel">
       <div className="panel-header">
         <div>
-          <p className="panel-title">Upload PDF</p>
+          <p className="panel-title">Upload</p>
           <p className="panel-subtitle">Drag & drop or click to import one file.</p>
         </div>
       </div>

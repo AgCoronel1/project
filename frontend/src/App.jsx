@@ -82,16 +82,12 @@ function App() {
         {!file ? (
           <div className="hero-card">
             <div>
-              <div className="eyebrow">PDF Search Tool</div>
-              <h1>Find what you need in seconds</h1>
+              <div className="eyebrow">Instant semantic search for vehicle manuals.</div>
+              <h1>Your car's manual, indexed by meaning, not keywords.</h1>
               <p className="hero-copy">
-                Upload a PDF document and instantly search through its content. Get quick summaries and exact page references.
+                Drop your PDF manual. Find exact pages instantly.
               </p>
               <div className="hero-meta">
-                <div className="status-pill">
-                  <FileUp size={16} style={{ marginRight: '0.5rem' }} />
-                  Ready to upload
-                </div>
                 <p className="status-note">Supports PDF files up to 50 MB</p>
               </div>
             </div>
