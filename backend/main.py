@@ -4,6 +4,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pypdf import PdfReader
+from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
 app = FastAPI()
@@ -27,9 +28,17 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 chroma_client = chromadb.Client()
 collection = chroma_client.get_or_create_collection(name="manual_pages")
 
+
+# Modelo de datos para la búsqueda semántica
+class SearchRequest(BaseModel):
+    query: str
+    top_k: int = 3  # Número de resultados a devolver
+
+
 @app.get("/")
 async def read_root():
     return {"status": "API de LeeManual ok"}
+
 
 @app.post("/api/upload/")
 async def upload_file(file: UploadFile = File(...)):
@@ -90,5 +99,41 @@ async def upload_file(file: UploadFile = File(...)):
         })
 
     except Exception as e:
-        # Manejo de errores en caso de que el PDF esté dañado o no se pueda procesar
         raise HTTPException(status_code=500, detail=f"Error al procesar el documento: {str(e)}")
+
+
+@app.post("/api/search/")
+async def search_manual(request: SearchRequest):
+    # 1. Verificar que haya un manual cargado en la colección
+    if collection.count() == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="La colección está vacía. Primero debes subir un manual."
+        )
+
+    # 2. Convertir la pregunta en un vector con el mismo modelo
+    query_vector = model.encode(request.query).tolist()
+
+    # 3. Buscar en ChromaDB los fragmentos más relevantes
+    results = collection.query(
+        query_embeddings=[query_vector],
+        n_results=request.top_k
+    )
+
+    # 4. ChromaDB devuelve listas anidadas; extraer la primera (único query enviado)
+    metadatas = results["metadatas"][0]
+    documents = results["documents"][0]
+
+    # 5. Mapear a una lista de objetos con página y snippet recortado
+    matches = [
+        {
+            "page": meta["page_number"],
+            "snippet": doc[:300]
+        }
+        for meta, doc in zip(metadatas, documents)
+    ]
+
+    return JSONResponse(content={
+        "query": request.query,
+        "results": matches
+    })
