@@ -62,21 +62,16 @@ function App() {
     try {
       setIsSearching(true);
       setError('');
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('query', query);
 
-      console.log('handleSearch function called');
-      
-      const response = await fetch('http://localhost:8000/api/upload', {
+      const response = await fetch('http://localhost:8000/api/search/', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query, top_k: 3 }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setResults(Array.isArray(data) ? data : [data]); 
+        setResults(data.results || []);
       } else {
         const errorData = await response.text();
         setError(errorData || 'An error occurred during search.');
@@ -91,10 +86,13 @@ function App() {
 
   const handleQueryChange = (newQuery) => {
     setQuery(newQuery);
-    
     if (!newQuery.trim()) {
       setResults([]);
     }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearch();
   };
 
   return (
@@ -133,6 +131,7 @@ function App() {
                 query={query}
                 setQuery={handleQueryChange}
                 onSearch={handleSearch}
+                onKeyDown={handleKeyDown}
                 isSearching={isSearching}
               />
 
@@ -145,9 +144,8 @@ function App() {
                     {results.map((result, idx) => (
                       <ResultCard
                         key={idx}
-                        title={result.title}
-                        description={result.description}
-                        tags={result.tags}
+                        page={result.page}
+                        snippet={result.snippet}
                       />
                     ))}
                   </div>
