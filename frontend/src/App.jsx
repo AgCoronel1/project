@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Search, FileUp, AlertCircle } from 'lucide-react';
+import { Search, AlertCircle } from 'lucide-react';
 import Header from './components/Header.jsx';
 import Main from './components/Main.jsx';
 import Searcher from './components/Searcher.jsx';
@@ -11,6 +11,7 @@ function App() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [error, setError] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const onDrop = useCallback((acceptedFiles) => {
     setError('');
@@ -28,6 +29,7 @@ function App() {
       return;
     }
     
+    console.log('File dropped:', droppedFile);
     setFile(droppedFile);
     setQuery('');
     setResults([]);
@@ -46,7 +48,7 @@ function App() {
     setError('');
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!file) {
       setError('Please upload a PDF first.');
       return;
@@ -57,21 +59,42 @@ function App() {
       return;
     }
 
-    // TODO: Integrate with backend API to search PDF content
-    setResults([]);
+    try {
+      setIsSearching(true);
+      setError('');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('query', query);
+
+      console.log('handleSearch function called');
+      
+      const response = await fetch('http://localhost:8000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setResults(Array.isArray(data) ? data : [data]); 
+      } else {
+        const errorData = await response.text();
+        setError(errorData || 'An error occurred during search.');
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('An unexpected network error occurred.');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleQueryChange = (newQuery) => {
     setQuery(newQuery);
-    if (!file) return;
     
     if (!newQuery.trim()) {
       setResults([]);
-      return;
     }
-
-    // TODO: Integrate with backend API to search PDF content
-    setResults([]);
   };
 
   return (
@@ -110,6 +133,7 @@ function App() {
                 query={query}
                 setQuery={handleQueryChange}
                 onSearch={handleSearch}
+                isSearching={isSearching}
               />
 
               {results.length > 0 && (
@@ -130,7 +154,7 @@ function App() {
                 </div>
               )}
 
-              {file && query && results.length === 0 && (
+              {file && query && results.length === 0 && !isSearching && (
                 <div className="empty-state">
                   <Search size={32} className="empty-state-icon" />
                   <h3>No results found</h3>
